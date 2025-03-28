@@ -1,24 +1,28 @@
-﻿namespace Util
+﻿using System;
+
+namespace SchoolManager.Helper
 {
-    public class Console
+    public static class ConsoleHelper
     {
-        static public string AskQuestion(string question)
+        // ฟังก์ชันเพื่อถามคำถามและรับคำตอบเป็น string
+        public static string AskQuestion(string question)
         {
             System.Console.Write(question);
             return System.Console.ReadLine();
         }
 
-        static public int AskQuestionInt(string question)
+        // ฟังก์ชันเพื่อถามคำถามและรับคำตอบเป็น int
+        public static int AskQuestionInt(string question)
         {
             System.Console.Write(question);
-            bool state = int.TryParse(System.Console.ReadLine(), out int result);
-            while (!state)
-            {
-                System.Console.Write("Invalid input. Please try again: ");
-                state = int.TryParse(System.Console.ReadLine(), out result);
-            }
+            return int.Parse(System.Console.ReadLine());
+        }
 
-            return result;
+        // ฟังก์ชันใหม่เพื่อถามคำถามและรับคำตอบเป็น double
+        public static double AskQuestionDouble(string question)
+        {
+            System.Console.Write(question);
+            return double.Parse(System.Console.ReadLine());
         }
     }
 }

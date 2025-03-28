@@ -1,31 +1,28 @@
 ﻿using System;
 
-namespace SchoolManager
+namespace SchoolManager.Members
 {
-    public class Teacher : SchoolMember, IPayroll
+    public class Teacher : SchoolMember
     {
-        public string Subject;
-        private int income;
-        private int balance;
+        public string Subject { get; set; }
+        public double Salary { get; set; }
 
-        public Teacher(string name, string address, int phoneNum, string subject = "", int income = 25000)
+        public Teacher(string name, string address, string phone, string subject, double salary)
+            : base(name, address, phone)
         {
-            Name = name;
-            Address = address;
-            Phone = phoneNum;
-            Subject = subject;
-            this.income = income;
-            balance = 0;
-        }
-
-        public void display()
-        {
-            Console.WriteLine("Name: {0}, Address: {1}, Phone: {2}, Subject: {3}", Name, Address, Phone, Subject);
+            this.Subject = subject;
+            this.Salary = salary;
         }
 
         public void Pay()
         {
-            Util.NetworkDelay.PayEntity("Teacher", Name, ref balance, income);
+            Console.WriteLine($"Paying teacher {Name} for teaching {Subject}. Salary: {Salary}");
+        }
+
+        public override void Display()
+        {
+            base.Display();
+            Console.WriteLine($"This teacher teaches {Subject} with a salary of {Salary}");
         }
     }
 }

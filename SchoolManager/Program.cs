@@ -1,78 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SchoolManager.Members;  // Correct namespace for members
 
 namespace SchoolManager
 {
     public class Program
     {
         static public List<Student> Students = new List<Student>();
+        static public List<Student> NewStudents = new List<Student>();
         static public List<Teacher> Teachers = new List<Teacher>();
-        static public Principal Principal = new Principal();
-        static public Receptionist Receptionist = new Receptionist();
-
-        enum SchoolMemberType
-        {
-            typePrincipal = 1,
-            typeTeacher,
-            typeStudent,
-            typeReceptionist
-        }
+        static public Principal Principal = new Principal("John", "School Address", "123");
+        static public Receptionist Receptionist = new Receptionist("Jane", "School Address", "124");
 
         public static SchoolMember AcceptAttributes()
         {
-            SchoolMember member = new SchoolMember();
-            member.Name = Util.Console.AskQuestion("Enter name: ");
-            member.Address = Util.Console.AskQuestion("Enter address: ");
-            member.Phone = Util.Console.AskQuestionInt("Enter phone number: ");
-
+            // รับค่า phone เป็น string แทนที่จะเป็น int
+            SchoolMember member = new SchoolMember(
+                Helper.ConsoleHelper.AskQuestion("Enter name: "),
+                Helper.ConsoleHelper.AskQuestion("Enter address: "),
+                Helper.ConsoleHelper.AskQuestion("Enter phone number: ")  // รับเบอร์โทรศัพท์เป็น string
+            );
             return member;
         }
 
         private static int acceptChoices()
         {
-            return Util.Console.AskQuestionInt("\n1. Add\n2. Display\n3. Pay\n4. Raise Complaint\n5. Student Performance\nPlease enter the member type: ");
+            return Helper.ConsoleHelper.AskQuestionInt("\n1. Add\n2. Display\n3. Pay\n4. Raise Complaint\n5. Student Performance\n6. Search Member\nPlease enter your choice: ");
         }
 
         private static int acceptMemberType()
         {
-            int x = Util.Console.AskQuestionInt("\n1. Principal\n2. Teacher\n3. Student\n4. Receptionist\nPlease enter the member type: ");
-            return Enum.IsDefined(typeof(SchoolMemberType), x) ? x : -1;
+            return Helper.ConsoleHelper.AskQuestionInt("\nSelect member type:\n1. Principal\n2. Teacher\n3. Student\nEnter your choice: ");
         }
 
-        public static void AddPrincpal()
+        private static void addData()
         {
-            SchoolMember member = AcceptAttributes();
-            Principal.Name = member.Name;
-            Principal.Address = member.Address;
-            Principal.Phone = member.Phone;
-        }
+            Receptionist = new Receptionist("Receptionist", "address", "123");
+            Principal = new Principal("Principal", "address", "123");
 
-        private static void addStudent()
-        {
-            SchoolMember member = AcceptAttributes();
-            Student newStudent = new Student(member.Name, member.Address, member.Phone);
-            newStudent.Grade = Util.Console.AskQuestionInt("Enter grade: ");
-
-            Students.Add(newStudent);
-        }
-
-        private static void addTeacher()
-        {
-            SchoolMember member = AcceptAttributes();
-            Teacher newTeacher = new Teacher(member.Name, member.Address, member.Phone);
-            newTeacher.Subject = Util.Console.AskQuestion("Enter subject: ");
-
-            Teachers.Add(newTeacher);
+            // สามารถลบการเพิ่มข้อมูลตัวอย่างออกได้
+            // for (int i = 0; i < 10; i++)
+            // {
+            //     Students.Add(new Student(i.ToString(), i.ToString(), i.ToString(), i));
+            //     Teachers.Add(new Teacher(i.ToString(), i.ToString(), i.ToString()));
+            // }
         }
 
         public static void Add()
         {
-            Console.WriteLine("\nPlease note that the Principal/Receptionist details cannot be added or modified now.");
             int memberType = acceptMemberType();
-
             switch (memberType)
             {
+                case 1:
+                    addPrincipal();  // เพิ่มการเพิ่ม Principal
+                    break;
                 case 2:
                     addTeacher();
                     break;
@@ -80,123 +62,182 @@ namespace SchoolManager
                     addStudent();
                     break;
                 default:
-                    Console.WriteLine("Invalid input. Terminating operation.");
+                    Console.WriteLine("Invalid input.");
                     break;
             }
         }
 
-        private static void display()
+        private static void addPrincipal()
         {
-            int memberType = acceptMemberType();
+            // รับข้อมูลพื้นฐานของ Principal จากฟังก์ชัน AcceptAttributes
+            SchoolMember member = AcceptAttributes();
 
-            switch (memberType)
+            // สร้าง Principal ใหม่
+            Principal newPrincipal = new Principal(member.Name, member.Address, member.Phone);
+
+            // กำหนดให้ Principal ใหม่เป็นค่า Principal ที่ใช้งาน
+            Principal = newPrincipal;
+            Console.WriteLine("Principal added successfully.");
+        }
+
+        private static void addTeacher()
+        {
+            // รับข้อมูลพื้นฐานของครูจากฟังก์ชัน AcceptAttributes
+            SchoolMember member = AcceptAttributes();
+
+            // ให้ผู้ใช้กรอกวิชาที่ครูสอน
+            string subject = Helper.ConsoleHelper.AskQuestion("Enter subject taught by the teacher: ");
+
+            // รับเงินเดือนของครู
+            double salary = Helper.ConsoleHelper.AskQuestionDouble("Enter salary for the teacher: ");
+
+            // สร้างครูใหม่พร้อมวิชาที่สอนและเงินเดือน
+            Teacher newTeacher = new Teacher(member.Name, member.Address, member.Phone, subject, salary);
+
+            // เพิ่มครูใหม่ไปยัง List ของครู
+            Teachers.Add(newTeacher);
+            Console.WriteLine("Teacher added successfully.");
+        }
+
+        private static void addStudent()
+        {
+            // รับข้อมูลพื้นฐานของนักเรียนจากฟังก์ชัน AcceptAttributes
+            SchoolMember member = AcceptAttributes();
+
+            // ให้ผู้ใช้กรอก Student ID
+            string studentID = Helper.ConsoleHelper.AskQuestion("Enter student ID: ");  // กรอกรหัสนักเรียน
+
+            // กรอกเกรด (ต้องตรวจสอบว่าเกรดที่กรอกไม่เป็น 0 หรือค่าว่าง)
+            double grade = Helper.ConsoleHelper.AskQuestionDouble("Enter grade: "); // เปลี่ยนเป็น AskQuestionDouble()
+            while (grade <= 0) 
+            {
+                Console.WriteLine("Grade must be greater than 0. Please enter again.");
+                grade = Helper.ConsoleHelper.AskQuestionDouble("Enter grade: "); // เปลี่ยนเป็น AskQuestionDouble()
+            }
+
+            // สร้างนักเรียนใหม่พร้อมเกรดและรหัสนักเรียน
+            Student newStudent = new Student(member.Name, member.Address, member.Phone, grade, studentID);
+
+            // เพิ่มนักเรียนใหม่ไปยัง List ของนักเรียน
+            Students.Add(newStudent);
+            NewStudents.Add(newStudent);
+
+            Console.WriteLine("Student added successfully.");
+        }
+
+        public static void display()
+        {
+            int displayChoice = Helper.ConsoleHelper.AskQuestionInt("\nSelect what you want to display:\n1. Students\n2. Teachers\n3. Principal\nEnter your choice: ");
+    
+            switch (displayChoice)
             {
                 case 1:
-                    Console.WriteLine("\nThe Principal's details are:");
-                    Principal.display();
+                    // แสดงข้อมูลนักเรียน
+                    Console.WriteLine("\nThe students added manually are:");
+                    foreach (Student student in NewStudents)
+                        student.Display();
                     break;
+
                 case 2:
-                    Console.WriteLine("\nThe teachers are:");
+                    // แสดงข้อมูลครู
+                    Console.WriteLine("\nThe teachers added manually are:");
                     foreach (Teacher teacher in Teachers)
-                        teacher.display();
+                        teacher.Display();  // เพิ่มการแสดงข้อมูลของครูพร้อมวิชาที่สอนและเงินเดือน
                     break;
+
                 case 3:
-                    Console.WriteLine("\nThe students are:");
-                    foreach (Student student in Students)
-                        student.display();
+                    // แสดงข้อมูล Principal
+                    Console.WriteLine("\nThe principal is:");
+                    Principal.Display();
                     break;
-                case 4:
-                    Console.WriteLine("\nThe Receptionist's details are:");
-                    Receptionist.Display();
-                    break;
+
                 default:
-                    Console.WriteLine("Invalid input. Terminating operation.");
+                    Console.WriteLine("Invalid choice.");
                     break;
             }
         }
 
         public static void Pay()
         {
-            Console.WriteLine("\nPlease note that the students cannot be paid.");
-            int memberType = acceptMemberType();
-
             Console.WriteLine("\nPayments in progress...");
-
-            switch (memberType)
+            foreach (Teacher teacher in Teachers)
             {
-                case 1:
-                    Principal.Pay();
-                    break;
-                case 2:
-                    List<Task> payments = new List<Task>();
-
-                    foreach (Teacher teacher in Teachers)
-                    {
-                        Task payment = new Task(teacher.Pay);
-                        payments.Add(payment);
-                        payment.Start();
-                    }
-
-                    Task.WaitAll(payments.ToArray());
-
-                    break;
-                case 4:
-                    Receptionist.Pay();
-                    break;
-                default:
-                    Console.WriteLine("Invalid input. Terminating operation.");
-                    break;
+                teacher.Pay(); // Call the Pay method for teachers
             }
-
-            Console.WriteLine("Payments completed.\n");
+            Receptionist.Pay(); // Call the Pay method for receptionist
+            Console.WriteLine("Payments completed.");
         }
 
         public static void RaiseComplaint()
         {
-            Receptionist.HandleComplaint();
-        }
-
-        private static void handleComplaintRaised(object sender, Complaint complaint)
-        {
-            Console.WriteLine("\nThis is a confirmation that we received your complaint. The details are as follows:");
-            Console.WriteLine($"---------\nComplaint Time: {complaint.ComplaintTime.ToLongDateString()}, {complaint.ComplaintTime.ToLongTimeString()}");
-            Console.WriteLine($"Complaint Raised: {complaint.ComplaintRaised}\n---------");
+            Receptionist.HandleComplaint(); // Handle complaints through receptionist
         }
 
         private static async Task showPerformance()
         {
-            double average = await Task.Run(() => Student.averageGrade(Students));
+            double average = await Task.Run(() => Student.AverageGrade(Students));
             Console.WriteLine($"The student average performance is: {average}");
         }
 
-        private static void addData()
+        // ฟังก์ชันค้นหาสมาชิก
+        public static void SearchMember()
         {
-            Receptionist = new Receptionist("Receptionist", "address", 123);
-            Receptionist.ComplaintRaised += handleComplaintRaised;
+            string searchTerm = Helper.ConsoleHelper.AskQuestion("Enter name or ID to search: ");
+            
+            // ค้นหานักเรียนตามชื่อหรือรหัสนักเรียน
+            var foundStudents = Students.FindAll(s => s.Name.Contains(searchTerm) || s.StudentID.Contains(searchTerm));
+            
+            // ค้นหาครูตามชื่อ
+            var foundTeachers = Teachers.FindAll(t => t.Name.Contains(searchTerm));
+            
+            // ค้นหาผู้อำนวยการตามชื่อ
+            var foundPrincipal = Principal.Name.Contains(searchTerm) ? new List<Principal> { Principal } : new List<Principal>();
 
-            Principal = new Principal("Principal", "address", 123);
-
-            for (int i = 0; i < 10; i++)
+            // แสดงผลการค้นหาผู้อำนวยการ
+            if (foundPrincipal.Count > 0)
             {
-                Students.Add(new Student(i.ToString(), i.ToString(), i, i));
-                Teachers.Add(new Teacher(i.ToString(), i.ToString(), i));
+                Console.WriteLine("\nFound Principal:");
+                foreach (var principal in foundPrincipal)
+                {
+                    principal.Display();
+                }
+            }
+
+            // แสดงผลการค้นหาครู
+            if (foundTeachers.Count > 0)
+            {
+                Console.WriteLine("\nFound Teachers:");
+                foreach (var teacher in foundTeachers)
+                {
+                    teacher.Display();
+                }
+            }
+
+            // แสดงผลการค้นหานักเรียน
+            if (foundStudents.Count > 0)
+            {
+                Console.WriteLine("\nFound Students:");
+                foreach (var student in foundStudents)
+                {
+                    student.Display();
+                }
+            }
+            else
+            {
+                // ถ้าไม่พบสมาชิกใด ๆ
+                Console.WriteLine("No members found.");
             }
         }
 
         public static async Task Main(string[] args)
         {
-            // Just for manual testing purposes.
-            addData();
+            addData(); // Adding initial data
 
             Console.WriteLine("-------------- Welcome ---------------\n");
-
-            //Console.WriteLine("Please enter the Princpals information.");
-            //AddPrincpal();
 
             bool flag = true;
             while (flag)
             {
-
                 int choice = acceptChoices();
                 switch (choice)
                 {
@@ -214,6 +255,9 @@ namespace SchoolManager
                         break;
                     case 5:
                         await showPerformance();
+                        break;
+                    case 6:
+                        SearchMember();  // เรียกใช้ฟังก์ชันค้นหาสมาชิก
                         break;
                     default:
                         flag = false;

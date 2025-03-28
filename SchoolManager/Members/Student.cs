@@ -1,39 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SchoolManager
+namespace SchoolManager.Members
 {
     public class Student : SchoolMember
     {
-        private int grade;
-        public int Grade
+        public string StudentID { get; set; }
+        public double Grade { get; set; }
+
+        public Student(string name, string address, string phone, double grade, string studentID)
+            : base(name, address, phone)
         {
-            get { return grade; }
-            set { grade = value; }
+            this.StudentID = studentID;
+            this.Grade = grade;
         }
 
-        public Student(string name = "", string address = "", int phoneNum = 0, int grade = 0)
+        // ฟังก์ชันเพื่อคำนวณค่าเฉลี่ยของเกรด
+        public static double AverageGrade(List<Student> students)
         {
-            Name = name;
-            Address = address;
-            Phone = phoneNum;
-            this.grade = grade;
-        }
-
-        public void display()
-        {
-            Console.WriteLine("Name: {0}, Address: {1}, Phone: {2}, Grade: {3}", Name, Address, Phone, Grade);
-        }
-
-        public static double averageGrade(List<Student> students)
-        {
-            double avg = 0;
-            foreach (Student student in students)
+            if (students.Count == 0)
             {
-                avg += student.Grade;
+                return 0; // ถ้าไม่มีนักเรียนใน List จะคืนค่า 0
             }
 
-            return avg / students.Count;
+            double totalGrade = 0;
+            foreach (var student in students)
+            {
+                totalGrade += student.Grade; // คำนวณเกรดรวม
+            }
+            return totalGrade / students.Count; // คำนวณค่าเฉลี่ย
         }
+
+        public override void Display()
+        {   
+            Console.WriteLine($"Student {Name}, ID: {StudentID}, Grade: {Grade}");
+        }
+
     }
 }

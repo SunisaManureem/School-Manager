@@ -1,55 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SchoolManager
+namespace SchoolManager.Members
 {
-    public class Complaint : EventArgs
+    public class Receptionist : SchoolMember
     {
-        public DateTime ComplaintTime { get; set; }
-        public string ComplaintRaised { get; set; }
-    }
-
-    public class Receptionist : SchoolMember, IPayroll
-    {
-        private int income;
-        private int balance;
-        public event EventHandler<Complaint> ComplaintRaised;
-
-        public Receptionist(int income = 10000) 
+        // Constructor that passes parameters to the base class (SchoolMember)
+        public Receptionist(string name, string address, string phone) : base(name, address, phone)
         {
-            this.income = income;
-            balance = 0;
         }
 
-        public Receptionist(string name, string address, int phoneNum, int income = 10000)
-        {
-            Name = name;
-            Address = address;
-            Phone = phoneNum;
-            this.income = income;
-            balance = 0;
-        }
-
-        public void Display()
-        {
-            Console.WriteLine("Name: {0}, Address: {1}, Phone: {2}", Name, Address, Phone);
-        }
-
+        // Method to simulate payment for the receptionist
         public void Pay()
         {
-            Util.NetworkDelay.PayEntity("Receptionist", Name, ref balance, income);
+            Console.WriteLine($"Paying receptionist {Name}");
         }
 
+        // Method to handle complaints
         public void HandleComplaint()
         {
-            Complaint complaint = new Complaint();
-            complaint.ComplaintTime = DateTime.Now;
-            complaint.ComplaintRaised = Util.Console.AskQuestion("Please enter your Complaint: ");
+            string complaint = Helper.ConsoleHelper.AskQuestion("Please enter your complaint: ");
+            Console.WriteLine($"Complaint received: {complaint}");
+        }
 
-            ComplaintRaised?.Invoke(this, complaint);
+        // Override Display method
+        public override void Display()
+        {
+            base.Display();
+            Console.WriteLine("This is a receptionist.");
         }
     }
 }
